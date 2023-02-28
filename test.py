@@ -62,6 +62,15 @@ board = chess.Board()
 # Initialize the selected square variable
 selected_square = None
 
+def get_selected_square():
+        # Get the position of the mouse click
+        mouse_pos = pygame.mouse.get_pos()
+
+        # Convert the mouse position to a chess square
+        col = mouse_pos[0] // (screen_width // 8)
+        row = 7 - mouse_pos[1] // (screen_height // 8)
+        return chess.square(col, row)
+
 # Play the game until it's over
 while not board.is_game_over():
     # Draw the board to the Pygame screen
@@ -83,36 +92,33 @@ while not board.is_game_over():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-    # If the user clicks on the board
-    if event.type == pygame.MOUSEBUTTONDOWN:
-        # Get the position of the mouse click
-        mouse_pos = pygame.mouse.get_pos()
-
-        # Convert the mouse position to a chess square
-        col = mouse_pos[0] // (screen_width // 8)
-        row = 7 - mouse_pos[1] // (screen_height // 8)
-        square = chess.square(col, row)
-
-        # If the user has not yet selected a square
-        if selected_square is None:
-            # If the selected square has a piece and it belongs to the player whose turn it is
-            if board.piece_at(square) is not None and board.piece_at(square).color == board.turn:
-                selected_square = square
-        # If the user has already selected a square
-        else:
-            # If the selected square is a valid move for the piece
-            move = chess.Move(selected_square, square)
-            if move in board.legal_moves:
-                # Make the move
-                board.push(move)
-            # Deselect the square
-            selected_square = None
+            # If the user clicks on the board
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                square = get_selected_square()
+                # If the user has not yet selected a square
+                if selected_square is None:
+                    # If the selected square has a piece and it belongs to the player whose turn it is
+                    if board.piece_at(square) is not None and board.piece_at(square).color == board.turn:
+                        selected_square = square
+                # If the user has already selected a square
+                else:
+                    # If the selected square is a valid move for the piece
+                    move = chess.Move(selected_square, square)
+                    if move in board.legal_moves:
+                        # Make the move
+                        board.push(move)
+                    # Deselect the square
+                    selected_square = None
 
     # If it's the computer's turn (black)
-    if board.turn == chess.BLACK:
+    elif board.turn == chess.BLACK:
         # Get the best move from the Stockfish engine
         result = engine.play(board, chess.engine.Limit(time=1.0))
         move = result.move
 
         # Make the move
         board.push(move)
+
+
+# Draw board one last time to show the end state
+draw_board(board)
