@@ -5,7 +5,7 @@ import chess
 import chess.engine
 import chess.polyglot
 
-MAX_DEPTH = 3
+MAX_DEPTH = 1
 
 # Initialize the Pygame module
 pygame.init()
@@ -21,8 +21,7 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 font = pygame.font.SysFont("Arial", 24)
 
 # Initialize the Stockfish engine
-engine = chess.engine.SimpleEngine.popen_uci(
-    r"res/Chess/stockfish-windows-2022-x86-64-avx2.exe")
+engine = chess.engine.SimpleEngine.popen_uci(r"res/Chess/stockfish-windows-2022-x86-64-avx2.exe")
 
 # Create a clock object to limit the frame rate
 clock = pygame.time.Clock()
@@ -134,12 +133,13 @@ def board_evaluation(board):
             # Promote black pawn to queen on the 1st rank
             if square // 8 == 1:  # check if on 2nd rank
                 board.promote(square, chess.QUEEN)
-
     return score
 
 
 def minimax(board, depth, alpha, beta, maximizing_player):
-    if depth == 0 or board.is_game_over():
+    if depth == 0:
+        return quiesce(alpha, beta, board)
+    if board.is_game_over():
         # If we've reached the maximum depth or the game is over, return the static evaluation
         return board_evaluation(board)
 
@@ -182,7 +182,28 @@ def minimax(board, depth, alpha, beta, maximizing_player):
                 break
         return min_eval
 
-
+# https://www.chessprogramming.org/Quiescence_Search
+# Use quiescence search to evaluate the position after a capture
+def quiesce(alpha, beta, board):
+    print("quiesce")
+    curr = board_evaluation(board)
+    if curr >= beta:
+        return beta
+    if alpha < curr:
+        alpha = curr
+    for move in board.legal_moves:
+        if board.is_capture(move):
+            print("capture")
+            print(move)
+            board.push(move)
+            score = -quiesce(-beta, -alpha, board)
+            board.pop()
+            if score >= beta:
+                return beta
+            if score > alpha:
+                alpha = score
+    return alpha
+    
 def get_best_move(board):
     try:
         move = chess.polyglot.MemoryMappedReader("human.bin").weighted_choice(board).move
