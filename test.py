@@ -5,7 +5,7 @@ import chess
 import chess.engine
 import chess.polyglot
 
-MAX_DEPTH = 1
+MAX_DEPTH = 3
 
 # Initialize the Pygame module
 pygame.init()
@@ -145,12 +145,12 @@ def minimax(board, depth, alpha, beta, maximizing_player):
 
     if maximizing_player:
         # If it's the maximizing player's turn
-        max_eval = float('-inf')
+        max_eval = -9999
         for move in board.legal_moves:
             # Apply the move to the board
             board.push(move)
             # Recursively evaluate the position after the move
-            eval = minimax(board, depth - 1, alpha, beta, False)
+            eval = -minimax(board, depth - 1, -alpha, -beta, False)
             # Undo the move
             board.pop()
             # Update the maximum evaluation and alpha value
@@ -164,7 +164,7 @@ def minimax(board, depth, alpha, beta, maximizing_player):
         return max_eval
     else:
         # If it's the minimizing player's turn
-        min_eval = float('inf')
+        min_eval = 9999
         for move in board.legal_moves:
             # Apply the move to the board
             board.push(move)
@@ -182,19 +182,23 @@ def minimax(board, depth, alpha, beta, maximizing_player):
                 break
         return min_eval
 
+# https://www.chessprogramming.org/Static_Exchange_Evaluation
+# TODO: Implement static exchange evaluation
+def see(board):
+    value = 0
+    last_move = board.peek()
+    
+
 # https://www.chessprogramming.org/Quiescence_Search
 # Use quiescence search to evaluate the position after a capture
 def quiesce(alpha, beta, board):
-    print("quiesce")
     curr = board_evaluation(board)
     if curr >= beta:
-        return beta
+        return curr
     if alpha < curr:
         alpha = curr
     for move in board.legal_moves:
         if board.is_capture(move):
-            print("capture")
-            print(move)
             board.push(move)
             score = -quiesce(-beta, -alpha, board)
             board.pop()
@@ -210,9 +214,9 @@ def get_best_move(board):
         return move
     except:
         best_move = None
-        max_eval = float('-inf')
-        alpha = float('-inf')
-        beta = float('inf')
+        max_eval = -9999
+        alpha = -99999
+        beta = 99999
         for move in board.legal_moves:
             # Apply the move to the board
             board.push(move)
