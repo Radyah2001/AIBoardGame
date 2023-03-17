@@ -161,12 +161,6 @@ def minimax(board, depth, alpha, beta, maximizing_player):
                 # If beta is less than or equal to alpha, prune the rest of the tree
                 break
         return min_eval
-
-# https://www.chessprogramming.org/Static_Exchange_Evaluation
-# TODO: Implement static exchange evaluation
-def see(board):
-    value = 0
-    last_move = board.peek()
     
 
 # https://www.chessprogramming.org/Quiescence_Search
