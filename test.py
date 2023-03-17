@@ -25,8 +25,6 @@ clock = pygame.time.Clock()
 fps = 60
 
 
-
-
 def draw_board(board, selected_square=None):
     # Define the colors for the chessboard and highlighting
     light_color = (255, 206, 158)
@@ -87,61 +85,83 @@ def get_selected_square():
 
 
 # Play the game until it's over
-if not board.is_game_over():
-    while 1:
-        # Draw the board to the Pygame screen
-        draw_board(board, selected_square)
 
-        # Draw the text for the player's turn
-        turn_text = "White's turn" if board.turn == chess.WHITE else "Black's turn"
-        text = font.render(turn_text, True, (255, 255, 255))
-        screen.blit(text, (10, 10))
+while not board.is_game_over():
 
-        # Update the Pygame screen
-        pygame.display.flip()
+    # Draw the board to the Pygame screen
+    draw_board(board, selected_square)
 
-        clock.tick(fps)
+    # Draw the text for the player's turn
+    turn_text = "White's turn" if board.turn == chess.WHITE else "Black's turn"
+    text = font.render(turn_text, True, (0, 0, 0))
+    text_bg_color = (250, 250, 250)  # Change this to your desired background color
+    text_background = pygame.Surface(text.get_size())
+    text_background.fill(text_bg_color)
+    text_background.blit(text, (0, 0))
+    screen.blit(text, (10, 10))
+    screen.blit(text_background, (10, 10))
 
-        # If it's the player's turn (white)
-        if board.turn == chess.WHITE:
-            # Handle Pygame events
-            for event in pygame.event.get():
-                # If the user closes the window, exit the program
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                # If the user clicks on the board
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    square = get_selected_square()
-                    # If the user has not yet selected a square
-                    if selected_square is None:
-                        # If the selected square has a piece and it belongs to the player whose turn it is
-                        if board.piece_at(square) is not None and board.piece_at(square).color == board.turn:
-                            selected_square = square
-                    # If the user has already selected a square
-                    else:
-                        # If the selected square is a valid move for the piece
-                        move = chess.Move(selected_square, square)
-                        if move in board.legal_moves:
-                            # Make the move
-                            board.push(move)
-                        # Deselect the square
-                        selected_square = None
+    # Update the Pygame screen
+    pygame.display.flip()
 
-        # If it's the computer's turn (black)
-        elif board.turn == chess.BLACK:
-            # Get the best move from the Stockfish engine
-            best_move = get_best_move(board)
+    clock.tick(fps)
 
-            # Make the move
-            board.push(best_move)
-elif board.is_game_over():
+    # If it's the player's turn (white)
+    if board.turn == chess.WHITE:
+        # Handle Pygame events
+        for event in pygame.event.get():
+            # If the user closes the window, exit the program
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            # If the user clicks on the board
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                square = get_selected_square()
+                # If the user has not yet selected a square
+                if selected_square is None:
+                    # If the selected square has a piece and it belongs to the player whose turn it is
+                    if board.piece_at(square) is not None and board.piece_at(square).color == board.turn:
+                        selected_square = square
+                # If the user has already selected a square
+                else:
+                    # If the selected square is a valid move for the piece
+                    move = chess.Move(selected_square, square)
+                    if move in board.legal_moves:
+                        # Make the move
+                        board.push(move)
+                    # Deselect the square
+                    selected_square = None
+
+    # If it's the computer's turn (black)
+    elif board.turn == chess.BLACK:
+        # Get the best move from the our engine engine
+        best_move = get_best_move(board)
+
+        # Make the move
+        board.push(best_move)
+
+while board.is_game_over() or board.is_checkmate() or board.is_fifty_moves():
+    draw_board(board, selected_square=None)
     if board.result() == '1-0':
         message = "White wins!"
     elif board.result() == '0-1':
         message = "Black wins!"
     else:
         message = "Draw!"
+    text = font.render(message, True, (0, 0, 0))
+    pygame.font.SysFont("Arial", 48)
+    text_bg_color = (250, 250, 250)  # Change this to your desired background color
+    text_background = pygame.Surface(text.get_size())
+    text_background.fill(text_bg_color)
+    text_background.blit(text, (0, 0))
+    screen.blit(text_background, (10, 10))
+    screen.blit(text, (10, 10))
+    pygame.display.flip()
 
+    for event in pygame.event.get():
+        # If the user closes the window, exit the program
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
 # Draw board one last time to show the end state
 draw_board(board)
