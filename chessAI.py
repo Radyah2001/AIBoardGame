@@ -117,15 +117,15 @@ def board_evaluation(board):
 
 def minimax(board, depth, alpha, beta, maximizing_player):
     if board.is_checkmate() and maximizing_player:
-        return -9999
+        return -99999
     elif board.is_checkmate() and not maximizing_player:
-        return 9999
+        return 99999
     if depth == 0:
         return quiesce(alpha, beta, board)
     
     if maximizing_player:
         # If it's the maximizing player's turn
-        max_eval = -9999
+        max_eval = -99999
         for move in board.legal_moves:
             # Apply the move to the board
             board.push(move)
@@ -144,7 +144,7 @@ def minimax(board, depth, alpha, beta, maximizing_player):
         return max_eval
     else:
         # If it's the minimizing player's turn
-        min_eval = 9999
+        min_eval = 99999
         for move in board.legal_moves:
             # Apply the move to the board
             board.push(move)
@@ -194,7 +194,7 @@ def get_best_move(board):
         return move
     except:
         best_move = None
-        max_eval = -9999
+        max_eval = -100000
         alpha = -99999
         beta = 99999
         for move in board.legal_moves:
