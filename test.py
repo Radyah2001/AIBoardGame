@@ -137,12 +137,13 @@ def board_evaluation(board):
 
 
 def minimax(board, depth, alpha, beta, maximizing_player):
+    if board.is_checkmate() and maximizing_player:
+        return -9999
+    elif board.is_checkmate() and not maximizing_player:
+        return 9999
     if depth == 0:
         return quiesce(alpha, beta, board)
-    if board.is_game_over():
-        # If we've reached the maximum depth or the game is over, return the static evaluation
-        return board_evaluation(board)
-
+    
     if maximizing_player:
         # If it's the maximizing player's turn
         max_eval = -9999
@@ -198,7 +199,7 @@ def quiesce(alpha, beta, board):
     if alpha < curr:
         alpha = curr
     for move in board.legal_moves:
-        if board.is_capture(move):
+        if board.is_capture(move) or board.is_check():
             board.push(move)
             score = -quiesce(-beta, -alpha, board)
             board.pop()
