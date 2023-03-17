@@ -125,7 +125,10 @@ while not board.is_game_over():
                 # If the user has already selected a square
                 else:
                     # If the selected square is a valid move for the piece
-                    move = chess.Move(selected_square, square)
+                    promotion = None
+                    if board.piece_type_at(selected_square)==chess.PAWN and chess.square_rank(selected_square) == 6:
+                        promotion = chess.QUEEN
+                    move = chess.Move(selected_square, square, promotion=promotion)
                     if move in board.legal_moves:
                         # Make the move
                         board.push(move)
